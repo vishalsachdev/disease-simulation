@@ -12,7 +12,7 @@ export const CHAPTERS: ChapterInfo[] = [
     title: 'The First Cases',
     subtitle: 'Millbrook City, Day 1',
     narrative:
-      'You arrive in Millbrook City. The hospital reports a cluster of 10 patients with a new respiratory illness. Population: 100,000. You have limited data — just a rising case count over the first 2 weeks. Your task: observe the epidemic curve and pick a model that might explain what you see.',
+      'You arrive in Millbrook City. The hospital reports a cluster of 10 patients with a new respiratory illness. Population: 100,000. Watch the case count unfold day by day over the first 2 weeks. Then pick a model from the selector below — can you tell which model generated this data?',
     teachingPoint:
       'In early exponential growth, cumulative case curves from different models look qualitatively similar — all show accelerating growth. With limited early data, you cannot reliably distinguish which model is generating the cases. You need more observations (recoveries, reinfections, latent periods) to choose the right model.',
   },

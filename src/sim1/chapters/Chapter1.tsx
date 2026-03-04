@@ -51,7 +51,7 @@ function getFittedParams(model: ModelType) {
 export default function Chapter1(_props: ChapterProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType>('SIR')
   const [revealedDays, setRevealedDays] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true) // auto-start on mount
 
   // "Observed" data: pre-generated from SIR — plot 1-S (cumulative cases)
   const observedData = useMemo(() => {
@@ -125,7 +125,7 @@ export default function Chapter1(_props: ChapterProps) {
           className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white
             hover:bg-blue-500 transition-all"
         >
-          {revealedDays === 0 ? 'Start Day-by-Day Reveal' : 'Restart Animation'}
+          Restart Animation
         </button>
 
         {revealedDays >= observedData.length - 1 && (
