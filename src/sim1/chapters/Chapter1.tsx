@@ -186,7 +186,7 @@ function EpidemicChartCustom({ data }: { data: Array<Record<string, number>> }) 
             borderRadius: '8px',
             fontSize: 12,
           }}
-          formatter={(value: number, name: string) => [`${(Number(value) * 100).toFixed(2)}%`, name]}
+          formatter={(value, name) => [`${(Number(value) * 100).toFixed(2)}%`, String(name)]}
           labelFormatter={(v) => `Day ${v}`}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
