@@ -74,7 +74,9 @@ dR/dt = γI − ωR − μR
 ```
 Recovered individuals lose immunity at rate ω (duration = 1/ω). Combined with births (μ), this prevents burnout and produces **endemic equilibrium**:
 - S* = (γ+μ)/β = 1/R₀
-- I* = μ(R₀−1)/β
+- I* = (1−S*)(ω+μ)/(ω+μ+γ)
+
+**Note:** The SIRS I* formula differs from SIR's `I* = μ(R₀−1)/β` because waning immunity (ω >> μ) contributes far more susceptibles than births alone. With default parameters, SIRS I* ≈ 14% vs SIR I* ≈ 0.03%.
 
 ### Default Parameters (from course materials)
 

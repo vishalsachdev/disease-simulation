@@ -14,36 +14,67 @@ interface ChapterProps {
   isLast: boolean
 }
 
-const PARAMS = { beta: 200, gamma: 365 / 7, sigma: 365 / 5, mu: 0.02, omega: 365 / 30 }
+const BASE_PARAMS = { beta: 200, gamma: 365 / 7, sigma: 365 / 5, mu: 0.02, omega: 365 / 30 }
 const DT = 0.0001
-const T_END = 0.12 // ~44 days — enough to see early rise
+const T_END = 0.04 // ~14 days — "first 2 weeks" per narrative
+
+/**
+ * Fit β for each model to match the observed growth rate from SIR.
+ * This ensures all models produce the same early exponential curve,
+ * demonstrating that early data cannot distinguish models.
+ *
+ * Given growth rate r = β_SIR - γ - μ:
+ *   SI:   β = r + μ
+ *   SIR:  β = r + γ + μ
+ *   SEIR: β = (r+σ+μ)(r+γ+μ)/σ  (from eigenvalue of linearized system)
+ *   SIRS: β = r + γ + μ  (same as SIR for short timescales)
+ */
+function getFittedParams(model: ModelType) {
+  const { gamma, sigma, mu, omega } = BASE_PARAMS
+  const r = BASE_PARAMS.beta - gamma - mu // observed growth rate from SIR
+  let beta: number
+  switch (model) {
+    case 'SI':
+      beta = r + mu
+      break
+    case 'SIR':
+    case 'SIRS':
+      beta = r + gamma + mu
+      break
+    case 'SEIR':
+      beta = ((r + sigma + mu) * (r + gamma + mu)) / sigma
+      break
+  }
+  return { beta, gamma, sigma, mu, omega }
+}
 
 export default function Chapter1(_props: ChapterProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType>('SIR')
   const [revealedDays, setRevealedDays] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  // "Observed" data: pre-generated from SIR with noise
+  // "Observed" data: pre-generated from SIR — plot 1-S (cumulative cases)
   const observedData = useMemo(() => {
     const y0 = getInitialConditions('SIR', 0.001)
-    const sol = solve(sirModel, y0, [0, T_END], DT, PARAMS)
+    const sol = solve(sirModel, y0, [0, T_END], DT, BASE_PARAMS)
     // Sample every ~1 day (1/365 year)
     const dayStep = Math.max(1, Math.floor((1 / 365) / DT))
     const points: Array<{ day: number; cases: number }> = []
     for (let i = 0; i < sol.t.length; i += dayStep) {
       points.push({
         day: Math.round(sol.t[i] * 365),
-        cases: sol.y[i][1], // I compartment
+        cases: 1 - sol.y[i][0], // 1-S = cumulative proportion infected
       })
     }
     return points
   }, [])
 
-  // Player's chosen model curve
+  // Player's chosen model — β auto-fitted to match observed growth rate
   const modelData = useMemo(() => {
+    const fittedParams = getFittedParams(selectedModel)
     const y0 = getInitialConditions(selectedModel, 0.001)
     const derivs = MODELS[selectedModel]
-    const sol = solve(derivs, y0, [0, T_END], DT, PARAMS)
+    const sol = solve(derivs, y0, [0, T_END], DT, fittedParams)
     return solutionToSeries(sol, selectedModel)
   }, [selectedModel])
 
@@ -70,7 +101,7 @@ export default function Chapter1(_props: ChapterProps) {
     return observedData.slice(0, revealedDays + 1).map((obs, i) => ({
       t: obs.day,
       Observed: obs.cases,
-      Model: modelData[i * dayStep]?.I ?? 0,
+      Model: 1 - (modelData[i * dayStep]?.S ?? 1), // 1-S = cumulative cases
     }))
   }, [observedData, modelData, revealedDays])
 
@@ -109,7 +140,7 @@ export default function Chapter1(_props: ChapterProps) {
         <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-slate-400">
-              Epidemic Curve — Day {observedData[revealedDays]?.day ?? 0}
+              Cumulative Cases — Day {observedData[revealedDays]?.day ?? 0}
             </h3>
             <span className="text-xs text-slate-500 font-mono">
               {selectedModel} model overlay
@@ -145,8 +176,8 @@ function EpidemicChartCustom({ data }: { data: Array<Record<string, number>> }) 
         <YAxis
           stroke="#64748b"
           fontSize={12}
-          tickFormatter={(v: number) => v.toFixed(3)}
-          label={{ value: 'Infected (proportion)', angle: -90, position: 'insideLeft', fill: '#64748b', fontSize: 11 }}
+          tickFormatter={(v: number) => `${(v * 100).toFixed(1)}%`}
+          label={{ value: 'Cumulative Cases (%)', angle: -90, position: 'insideLeft', fill: '#64748b', fontSize: 11 }}
         />
         <Tooltip
           contentStyle={{
@@ -155,7 +186,8 @@ function EpidemicChartCustom({ data }: { data: Array<Record<string, number>> }) 
             borderRadius: '8px',
             fontSize: 12,
           }}
-          formatter={(value) => [Number(value).toFixed(5), undefined]}
+          formatter={(value: number, name: string) => [`${(Number(value) * 100).toFixed(2)}%`, name]}
+          labelFormatter={(v) => `Day ${v}`}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Line

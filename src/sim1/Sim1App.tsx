@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProgressBar from '../components/ProgressBar'
 import { CHAPTERS } from './data/story'
 import Chapter1 from './chapters/Chapter1'
@@ -11,6 +11,11 @@ const CHAPTER_COMPONENTS = [Chapter1, Chapter2, Chapter3, Chapter4, Chapter5]
 
 export default function Sim1App() {
   const [currentChapter, setCurrentChapter] = useState(0)
+
+  // Scroll to top when chapter changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentChapter])
 
   const ChapterComponent = CHAPTER_COMPONENTS[currentChapter]
   const chapter = CHAPTERS[currentChapter]
@@ -56,7 +61,7 @@ export default function Sim1App() {
       </main>
 
       {/* Navigation */}
-      <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur sticky bottom-0">
+      <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur sticky bottom-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between">
           <button
             onClick={() => setCurrentChapter((c) => Math.max(c - 1, 0))}

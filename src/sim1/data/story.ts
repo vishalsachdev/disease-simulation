@@ -14,7 +14,7 @@ export const CHAPTERS: ChapterInfo[] = [
     narrative:
       'You arrive in Millbrook City. The hospital reports a cluster of 10 patients with a new respiratory illness. Population: 100,000. You have limited data — just a rising case count over the first 2 weeks. Your task: observe the epidemic curve and pick a model that might explain what you see.',
     teachingPoint:
-      'In early exponential growth, all compartmental models look similar. Early data is ambiguous — you cannot distinguish SI from SIR from SEIR just by watching cases rise.',
+      'In early exponential growth, cumulative case curves from different models look qualitatively similar — all show accelerating growth. With limited early data, you cannot reliably distinguish which model is generating the cases. You need more observations (recoveries, reinfections, latent periods) to choose the right model.',
   },
   {
     id: 2,

@@ -46,20 +46,39 @@ export default function EpidemicChart({
     model === 'SEIR' ? ['S', 'E', 'I', 'R'] :
     ['S', 'I', 'R']
 
+  // Determine time unit based on max time in data
+  const maxT = data.length > 0 ? data[data.length - 1].t : 1
+  const useDays = maxT <= 1 // Show days for simulations <= 1 year
+
+  // Compute explicit tick values (6-8 evenly spaced ticks)
+  const numTicks = 7
+  const xTicks: number[] = []
+  for (let i = 0; i <= numTicks; i++) {
+    xTicks.push((maxT * i) / numTicks)
+  }
+
+  // Downsample for chart performance
+  const displayData = data.length > 500
+    ? data.filter((_, i) => i % Math.ceil(data.length / 500) === 0 || i === data.length - 1)
+    : data
+
   return (
     <div>
       {title && (
         <h3 className="text-sm font-medium text-slate-400 mb-2">{title}</h3>
       )}
       <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <LineChart data={displayData} margin={{ top: 5, right: 20, bottom: 20, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
           <XAxis
             dataKey="t"
+            type="number"
+            domain={[0, maxT]}
+            ticks={xTicks}
             stroke="#64748b"
-            fontSize={12}
-            tickFormatter={(v: number) => v.toFixed(1)}
-            label={{ value: 'Time (years)', position: 'insideBottom', offset: -2, fill: '#64748b', fontSize: 11 }}
+            fontSize={11}
+            tickFormatter={(v: number) => useDays ? `${Math.round(v * 365)}` : v.toFixed(1)}
+            label={{ value: useDays ? 'Day' : 'Time (years)', position: 'insideBottom', offset: -10, fill: '#64748b', fontSize: 11 }}
           />
           <YAxis
             stroke="#64748b"
@@ -75,7 +94,7 @@ export default function EpidemicChart({
               borderRadius: '8px',
               fontSize: 12,
             }}
-            labelFormatter={(v) => `t = ${Number(v).toFixed(3)} yr`}
+            labelFormatter={(v) => useDays ? `Day ${Math.round(Number(v) * 365)}` : `t = ${Number(v).toFixed(2)} yr`}
             formatter={(value, name) => [
               Number(value).toFixed(4),
               LABELS[String(name)] || name,

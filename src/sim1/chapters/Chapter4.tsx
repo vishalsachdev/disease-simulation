@@ -56,7 +56,10 @@ export default function Chapter4(_props: ChapterProps) {
 
   // Theoretical endemic equilibrium
   const S_star_theory = (GAMMA + MU) / BETA
-  const I_star_theory = MU * (r0 - 1) / BETA
+  // SIRS equilibrium: I* = (1-S*)(ω+μ)/(ω+μ+γ), SIR: I* = μ(R₀-1)/β
+  const I_star_theory = showSIRS
+    ? (1 - S_star_theory) * (omega + MU) / (omega + MU + GAMMA)
+    : MU * (r0 - 1) / BETA
 
   const waneDays = (365 / omega).toFixed(0)
   const chapter = CHAPTERS[3]
@@ -137,7 +140,7 @@ export default function Chapter4(_props: ChapterProps) {
             <h3 className="text-sm font-medium text-slate-300 mb-2">Endemic Equilibrium</h3>
             <div className="text-xs text-slate-400 space-y-1 font-mono">
               <p>S* = (γ+μ)/β = {S_star_theory.toFixed(4)}</p>
-              <p>I* = μ(R₀−1)/β = {I_star_theory.toFixed(6)}</p>
+              <p>I* = (1−S*)(ω+μ)/(ω+μ+γ) = {I_star_theory.toFixed(4)}</p>
               <p>Simulated S* = {eq.S_star.toFixed(4)}</p>
               <p>Simulated I* = {eq.I_star.toFixed(6)}</p>
             </div>
