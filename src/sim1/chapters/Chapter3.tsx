@@ -107,7 +107,7 @@ export default function Chapter3(_props: ChapterProps) {
             <ParameterSlider
               label="Time before contagious (σ)"
               value={sigma}
-              min={30}
+              min={12}
               max={365}
               step={5}
               onChange={setSigma}
