@@ -53,6 +53,7 @@ export default function Epilogue() {
           <p>
             When most transmission is symptomatic (low θ), isolating cases after
             symptom onset can reduce R below 1. SARS (θ=0.10) was controlled this way.
+            <span className="text-slate-500 text-xs block mt-1">See Scenario 1: The SARS Playbook</span>
           </p>
         </NarrativePanel>
         <NarrativePanel title="2. High θ → Need Layered Response" variant="insight">
@@ -60,6 +61,7 @@ export default function Epilogue() {
             When significant transmission is presymptomatic (high θ), isolation alone
             fails. You need contact tracing, quarantine, and/or vaccination. COVID-19 (θ=0.62)
             required all of these.
+            <span className="text-slate-500 text-xs block mt-1">See Scenario 2: The COVID Challenge</span>
           </p>
         </NarrativePanel>
         <NarrativePanel title="3. Quarantine vs Monitoring: It Depends" variant="insight">
@@ -67,6 +69,7 @@ export default function Epilogue() {
             Quarantine outperforms symptom monitoring for fast-course diseases where
             infectiousness starts before symptoms. The benefit depends on both disease
             biology and implementation quality (tracing speed, coverage).
+            <span className="text-slate-500 text-xs block mt-1">See Scenario 3: The Quarantine Debate</span>
           </p>
         </NarrativePanel>
         <NarrativePanel title="4. Timing Is Everything" variant="insight">
@@ -74,6 +77,7 @@ export default function Epilogue() {
             The Philadelphia vs St. Louis comparison shows that early NPI implementation
             dramatically reduces peak infection and total cases. A delay of even 1-2 weeks
             can overwhelm hospital capacity.
+            <span className="text-slate-500 text-xs block mt-1">See Scenario 4: The Philadelphia Lesson</span>
           </p>
         </NarrativePanel>
       </div>

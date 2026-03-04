@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import NarrativePanel from '../../components/NarrativePanel'
 import EpidemicChart from '../../components/EpidemicChart'
 import ParameterSlider from '../../components/ParameterSlider'
@@ -23,7 +24,7 @@ const T_END = 0.25
 
 export default function Chapter3(_props: ChapterProps) {
   const [sigma, setSigma] = useState(365 / 5)
-  const [showSEIR, setShowSEIR] = useState(true)
+  const [showSEIR, setShowSEIR] = useState<'sir' | 'seir' | 'both'>('seir')
 
   const sirParams = useMemo(() => ({ beta: BETA, gamma: GAMMA, mu: MU }), [])
   const seirParams = useMemo(
@@ -71,9 +72,9 @@ export default function Chapter3(_props: ChapterProps) {
 
           <div className="flex gap-2">
             <button
-              onClick={() => setShowSEIR(false)}
+              onClick={() => setShowSEIR('sir')}
               className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                !showSEIR
+                showSEIR === 'sir'
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
@@ -81,18 +82,28 @@ export default function Chapter3(_props: ChapterProps) {
               SIR
             </button>
             <button
-              onClick={() => setShowSEIR(true)}
+              onClick={() => setShowSEIR('seir')}
               className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                showSEIR
+                showSEIR === 'seir'
                   ? 'bg-orange-600 text-white'
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
             >
               SEIR
             </button>
+            <button
+              onClick={() => setShowSEIR('both')}
+              className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                showSEIR === 'both'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Both
+            </button>
           </div>
 
-          {showSEIR && (
+          {showSEIR !== 'sir' && (
             <ParameterSlider
               label="Time before contagious (σ)"
               value={sigma}
@@ -109,23 +120,23 @@ export default function Chapter3(_props: ChapterProps) {
         <MetricsDashboard
           metrics={[
             {
-              label: showSEIR ? 'SEIR R₀' : 'SIR R₀',
-              value: (showSEIR ? r0_seir : r0_sir).toFixed(2),
+              label: showSEIR === 'sir' ? 'SIR R₀' : 'SEIR R₀',
+              value: (showSEIR === 'sir' ? r0_sir : r0_seir).toFixed(2),
               color: '#ef4444',
             },
             {
               label: 'Peak Day',
-              value: `~${((showSEIR ? seirPeak : sirPeak).peakTime * 365).toFixed(0)}`,
+              value: `~${((showSEIR === 'sir' ? sirPeak : seirPeak).peakTime * 365).toFixed(0)}`,
               color: '#8b5cf6',
             },
             {
               label: 'Peak I',
-              value: (showSEIR ? seirPeak : sirPeak).peakValue.toFixed(4),
+              value: `${((showSEIR === 'sir' ? sirPeak : seirPeak).peakValue * 100).toFixed(1)}%`,
               color: '#ef4444',
             },
             {
-              label: 'S(∞)',
-              value: (showSEIR ? seirFinal : sirFinal).toFixed(4),
+              label: 'Final S',
+              value: `${((showSEIR === 'sir' ? sirFinal : seirFinal) * 100).toFixed(1)}%`,
               color: '#3b82f6',
             },
           ]}
@@ -155,13 +166,13 @@ export default function Chapter3(_props: ChapterProps) {
               </tr>
               <tr>
                 <td className="py-1">Peak I</td>
-                <td className="text-right font-mono">{sirPeak.peakValue.toFixed(4)}</td>
-                <td className="text-right font-mono">{seirPeak.peakValue.toFixed(4)}</td>
+                <td className="text-right font-mono">{(sirPeak.peakValue * 100).toFixed(1)}%</td>
+                <td className="text-right font-mono">{(seirPeak.peakValue * 100).toFixed(1)}%</td>
               </tr>
               <tr>
-                <td className="py-1">S(∞)</td>
-                <td className="text-right font-mono">{sirFinal.toFixed(4)}</td>
-                <td className="text-right font-mono">{seirFinal.toFixed(4)}</td>
+                <td className="py-1">Final S</td>
+                <td className="text-right font-mono">{(sirFinal * 100).toFixed(1)}%</td>
+                <td className="text-right font-mono">{(seirFinal * 100).toFixed(1)}%</td>
               </tr>
             </tbody>
           </table>
@@ -175,12 +186,52 @@ export default function Chapter3(_props: ChapterProps) {
       {/* Right: Chart */}
       <div className="lg:col-span-2">
         <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4">
-          <EpidemicChart
-            data={showSEIR ? seirData : sirData}
-            model={showSEIR ? 'SEIR' : 'SIR'}
-            title={showSEIR ? 'SEIR Model' : 'SIR Model'}
-            thresholdS={1 / (showSEIR ? r0_seir : r0_sir)}
-          />
+          {showSEIR === 'both' ? (
+            <>
+              <h3 className="text-sm font-medium text-slate-400 mb-2">SIR vs SEIR — Infected (I) Overlay</h3>
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart
+                  data={sirData.map((d, i) => ({
+                    t: d.t,
+                    'SIR I': d.I,
+                    'SEIR I': seirData[Math.min(i, seirData.length - 1)]?.I ?? 0,
+                  }))}
+                  margin={{ top: 5, right: 20, bottom: 20, left: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis
+                    dataKey="t"
+                    type="number"
+                    stroke="#64748b"
+                    fontSize={11}
+                    tickFormatter={(v: number) => `${Math.round(v * 365)}`}
+                    label={{ value: 'Day', position: 'insideBottom', offset: -10, fill: '#64748b', fontSize: 11 }}
+                  />
+                  <YAxis
+                    stroke="#64748b"
+                    fontSize={12}
+                    tickFormatter={(v: number) => `${(v * 100).toFixed(0)}%`}
+                    label={{ value: 'Infected (%)', angle: -90, position: 'insideLeft', fill: '#64748b', fontSize: 11 }}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: 12 }}
+                    labelFormatter={(v) => `Day ${Math.round(Number(v) * 365)}`}
+                    formatter={(value) => [`${(Number(value) * 100).toFixed(1)}%`]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Line type="monotone" dataKey="SIR I" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="SEIR I" stroke="#f97316" strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </>
+          ) : (
+            <EpidemicChart
+              data={showSEIR === 'seir' ? seirData : sirData}
+              model={showSEIR === 'seir' ? 'SEIR' : 'SIR'}
+              title={showSEIR === 'seir' ? 'SEIR Model' : 'SIR Model'}
+              thresholdS={1 / (showSEIR === 'seir' ? r0_seir : r0_sir)}
+            />
+          )}
         </div>
       </div>
     </div>

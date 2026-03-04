@@ -7,12 +7,15 @@ import FraserPlot from '../components/FraserPlot'
 import InfectiousnessProfileChart from '../components/InfectiousnessProfile'
 import { computeREffective, DISEASE_PRESETS } from '../../engine/interventions'
 import { SCENARIOS } from '../data/diseases'
+import { SCENARIO_QUIZZES } from '../data/quizzes'
 
 export default function Scenario1() {
   const [isolationOn, setIsolationOn] = useState(false)
   const [isolationEff, setIsolationEff] = useState(0.8)
   const [tracingOn, setTracingOn] = useState(false)
   const [tracingEff, setTracingEff] = useState(0.5)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [showAnswer, setShowAnswer] = useState(false)
 
   const R0 = 2.5
   const theta = 0.10
@@ -60,6 +63,40 @@ export default function Scenario1() {
             <p>{scenario.teachingPoint}</p>
           </NarrativePanel>
         )}
+
+        {/* Quiz */}
+        {SCENARIO_QUIZZES.scenario1.map((quiz) => (
+          <div key={quiz.id} className="rounded-xl border border-slate-700/50 p-4 space-y-3"
+            style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)' }}>
+            <h3 className="text-sm font-semibold text-slate-300">Check Understanding</h3>
+            <p className="text-sm text-slate-400">{quiz.question}</p>
+            {quiz.options.map((opt, i) => (
+              <label key={i} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                <input type="radio" name={quiz.id} value={i}
+                  checked={selectedAnswer === i}
+                  onChange={() => { setSelectedAnswer(i); setShowAnswer(false) }}
+                  className="accent-blue-500" />
+                {opt}
+              </label>
+            ))}
+            <button onClick={() => setShowAnswer(true)}
+              disabled={selectedAnswer === null}
+              className="w-full px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white
+                hover:bg-blue-500 disabled:opacity-30 transition-all">
+              Check Answer
+            </button>
+            {showAnswer && (
+              <div className={`text-sm p-3 rounded-lg ${
+                selectedAnswer === quiz.correctIndex
+                  ? 'bg-green-500/10 text-green-300'
+                  : 'bg-red-500/10 text-red-300'
+              }`}>
+                {selectedAnswer === quiz.correctIndex ? 'Correct! ' : 'Not quite. '}
+                {quiz.explanation}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Right panel */}

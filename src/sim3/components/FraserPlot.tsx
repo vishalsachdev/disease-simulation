@@ -39,6 +39,11 @@ export default function FraserPlot({
       <h3 className="text-sm font-medium text-slate-400 mb-2">
         Fraser Controllability Plot (R₀ vs θ)
       </h3>
+      <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+        Each dot is a disease. Diseases in the <span className="text-green-400">green zone</span> can
+        be stopped by isolating sick people. Diseases in the <span className="text-red-400">red zone</span> need
+        more — contact tracing, quarantine, or vaccines. The dashed line is the boundary.
+      </p>
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />

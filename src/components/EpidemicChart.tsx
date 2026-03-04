@@ -27,6 +27,13 @@ const COLORS: Record<string, string> = {
   R: '#22c55e',
 }
 
+const PATTERNS: Record<string, string> = {
+  S: '0',       // solid
+  E: '8 4',     // long dash
+  I: '4 2',     // short dash
+  R: '2 2 8 2', // dash-dot
+}
+
 const LABELS: Record<string, string> = {
   S: 'Susceptible',
   E: 'Exposed',
@@ -110,6 +117,7 @@ export default function EpidemicChart({
               type="monotone"
               dataKey={comp}
               stroke={COLORS[comp]}
+              strokeDasharray={PATTERNS[comp]}
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}

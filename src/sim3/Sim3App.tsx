@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import NarrativePanel from '../components/NarrativePanel'
 import { SCENARIOS } from './data/diseases'
 import Scenario1 from './scenarios/Scenario1'
 import Scenario2 from './scenarios/Scenario2'
@@ -70,6 +71,21 @@ export default function Sim3App() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {currentScenario === 0 && (
+          <div className="max-w-3xl mx-auto mb-6">
+            <NarrativePanel title="Shifting Gears" variant="briefing">
+              <p>
+                In Patient Zero, you learned <strong>how</strong> epidemics work — compartmental
+                models, R₀, and endemic dynamics. Now you'll learn <strong>how to stop them</strong>.
+              </p>
+              <p className="mt-2">
+                The key shift: instead of tracking compartments over time (differential equations),
+                you'll compute whether interventions can push R<sub>eff</sub> below 1 (algebra).
+                Your tools: isolation, contact tracing, quarantine, and vaccination.
+              </p>
+            </NarrativePanel>
+          </div>
+        )}
         <ScenarioComponent />
       </main>
 

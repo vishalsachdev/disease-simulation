@@ -5,6 +5,7 @@ import ParameterSlider from '../../components/ParameterSlider'
 import MetricsDashboard from '../../components/MetricsDashboard'
 import { solve } from '../../engine/ode-solver'
 import { SCENARIOS } from '../data/diseases'
+import { SCENARIO_QUIZZES } from '../data/quizzes'
 
 // 1918 Influenza-like parameters
 const BASE_BETA = 120
@@ -15,12 +16,14 @@ const T_END = 0.5 // ~6 months
 const HOSPITAL_CAPACITY = 0.05 // 5% of population
 
 /**
- * SIR model where beta drops at NPI start time.
+ * SIR model where beta drops during NPI window.
  */
-function sirWithNPI(npiStartDay: number, betaReduction: number) {
+function sirWithNPI(npiStartDay: number, npiEndDay: number, betaReduction: number) {
   const npiStartYear = npiStartDay / 365
+  const npiEndYear = npiEndDay / 365
   const derivs = (y: number[], t: number, p: Record<string, number>) => {
-    const beta = t >= npiStartYear ? p.beta * (1 - betaReduction) : p.beta
+    const inNPI = t >= npiStartYear && t < npiEndYear
+    const beta = inNPI ? p.beta * (1 - betaReduction) : p.beta
     const [S, I, R] = y
     return [
       p.mu - beta * S * I - p.mu * S,
@@ -36,11 +39,15 @@ export default function Scenario4() {
   const [phillyNPIDay, setPhillyNPIDay] = useState(30)
   const [stLouisNPIDay, setStLouisNPIDay] = useState(7)
   const [betaReduction, setBetaReduction] = useState(0.5)
+  const [phillyNPIEnd, setPhillyNPIEnd] = useState(182)
+  const [stLouisNPIEnd, setStLouisNPIEnd] = useState(182)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [showAnswer, setShowAnswer] = useState(false)
 
   const scenario = SCENARIOS[3]
 
-  const phillySol = useMemo(() => sirWithNPI(phillyNPIDay, betaReduction), [phillyNPIDay, betaReduction])
-  const stLouisSol = useMemo(() => sirWithNPI(stLouisNPIDay, betaReduction), [stLouisNPIDay, betaReduction])
+  const phillySol = useMemo(() => sirWithNPI(phillyNPIDay, phillyNPIEnd, betaReduction), [phillyNPIDay, phillyNPIEnd, betaReduction])
+  const stLouisSol = useMemo(() => sirWithNPI(stLouisNPIDay, stLouisNPIEnd, betaReduction), [stLouisNPIDay, stLouisNPIEnd, betaReduction])
 
   // Downsample and merge
   const chartData = useMemo(() => {
@@ -112,6 +119,27 @@ export default function Scenario4() {
             onChange={setBetaReduction}
             displayValue={`${(betaReduction * 100).toFixed(0)}%`}
           />
+          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider pt-2">
+            NPI Lift Timing
+          </h3>
+          <ParameterSlider
+            label="Philadelphia: Lift NPIs"
+            value={phillyNPIEnd}
+            min={phillyNPIDay + 7}
+            max={182}
+            step={7}
+            onChange={setPhillyNPIEnd}
+            displayValue={phillyNPIEnd >= 180 ? 'Never' : `Day ${phillyNPIEnd}`}
+          />
+          <ParameterSlider
+            label="St. Louis: Lift NPIs"
+            value={stLouisNPIEnd}
+            min={stLouisNPIDay + 7}
+            max={182}
+            step={7}
+            onChange={setStLouisNPIEnd}
+            displayValue={stLouisNPIEnd >= 180 ? 'Never' : `Day ${stLouisNPIEnd}`}
+          />
         </div>
 
         <MetricsDashboard
@@ -138,6 +166,40 @@ export default function Scenario4() {
         <NarrativePanel title="Key Insight" variant="insight">
           <p>{scenario.teachingPoint}</p>
         </NarrativePanel>
+
+        {/* Quiz */}
+        {SCENARIO_QUIZZES.scenario4.map((quiz) => (
+          <div key={quiz.id} className="rounded-xl border border-slate-700/50 p-4 space-y-3"
+            style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)' }}>
+            <h3 className="text-sm font-semibold text-slate-300">Check Understanding</h3>
+            <p className="text-sm text-slate-400">{quiz.question}</p>
+            {quiz.options.map((opt, i) => (
+              <label key={i} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                <input type="radio" name={quiz.id} value={i}
+                  checked={selectedAnswer === i}
+                  onChange={() => { setSelectedAnswer(i); setShowAnswer(false) }}
+                  className="accent-blue-500" />
+                {opt}
+              </label>
+            ))}
+            <button onClick={() => setShowAnswer(true)}
+              disabled={selectedAnswer === null}
+              className="w-full px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white
+                hover:bg-blue-500 disabled:opacity-30 transition-all">
+              Check Answer
+            </button>
+            {showAnswer && (
+              <div className={`text-sm p-3 rounded-lg ${
+                selectedAnswer === quiz.correctIndex
+                  ? 'bg-green-500/10 text-green-300'
+                  : 'bg-red-500/10 text-red-300'
+              }`}>
+                {selectedAnswer === quiz.correctIndex ? 'Correct! ' : 'Not quite. '}
+                {quiz.explanation}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Right: Side-by-side epidemic curves */}
