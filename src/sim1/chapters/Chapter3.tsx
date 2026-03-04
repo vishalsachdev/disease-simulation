@@ -94,7 +94,7 @@ export default function Chapter3(_props: ChapterProps) {
 
           {showSEIR && (
             <ParameterSlider
-              label="σ (latent rate)"
+              label="Time before contagious (σ)"
               value={sigma}
               min={30}
               max={365}

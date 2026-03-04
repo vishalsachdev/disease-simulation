@@ -41,7 +41,7 @@ export const CHAPTERS: ChapterInfo[] = [
     narrative:
       'You thought the outbreak was finished, but cases are rising again. Reports of reinfection emerge — immunity appears to wane after about 30 days. Meanwhile, the city has births and deaths. The disease may become endemic.',
     teachingPoint:
-      'When immunity wanes (SIRS model) and new susceptibles enter through births, the disease does not burn out. Instead, it oscillates and settles into an endemic equilibrium where S* = 1/R₀ and I* = μ(R₀−1)/β.',
+      'When immunity wanes (SIRS model) and new susceptibles enter through births, the disease does not burn out. Instead, it oscillates and settles into an endemic equilibrium. At steady state, about 26% of the population remains susceptible (S* = 1/R₀) and about 14% is infected at any given time.',
   },
   {
     id: 5,
@@ -68,7 +68,7 @@ export const CHAPTER_5_QUIZ: QuizQuestion[] = [
     question: 'Which model is most accurate for this pathogen (with waning immunity and demography)?',
     options: ['SI', 'SIR', 'SEIR', 'SIRS with demography'],
     correctIndex: 3,
-    explanation: 'SIRS with demography captures both the latent recovery and the waning immunity observed in the data.',
+    explanation: 'SIRS with demography captures waning immunity and demographic turnover — the key features observed in this outbreak.',
   },
   {
     id: 'q2',

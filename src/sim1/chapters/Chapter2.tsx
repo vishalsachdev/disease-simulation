@@ -55,7 +55,7 @@ export default function Chapter2(_props: ChapterProps) {
         <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4 space-y-4">
           <h3 className="text-sm font-medium text-slate-300">Parameters</h3>
           <ParameterSlider
-            label="β (transmission rate)"
+            label="How fast it spreads (β)"
             value={beta}
             min={50}
             max={400}
@@ -64,15 +64,15 @@ export default function Chapter2(_props: ChapterProps) {
             displayValue={beta.toFixed(0)}
           />
           <div className="text-xs text-slate-500">
-            γ = {GAMMA.toFixed(1)} (7-day infectious period) · μ = {MU}
+            Recovery rate (γ) = {GAMMA.toFixed(1)}/yr (7-day infectious period) · Birth/death rate (μ) = {MU}/yr
           </div>
         </div>
 
         <MetricsDashboard
           metrics={[
-            { label: 'R₀', value: r0.toFixed(2), color: r0 > 1 ? '#ef4444' : '#22c55e' },
-            { label: '1/R₀', value: thresholdS.toFixed(3), color: '#fbbf24' },
-            { label: 'Peak I', value: peak.peakValue.toFixed(4), color: '#ef4444' },
+            { label: 'R₀', value: showQuizResult ? r0.toFixed(2) : '???', color: r0 > 1 ? '#ef4444' : '#22c55e' },
+            { label: '1/R₀', value: showQuizResult ? thresholdS.toFixed(3) : '???', color: '#fbbf24' },
+            { label: 'Peak I', value: `${(peak.peakValue * 100).toFixed(1)}%`, color: '#ef4444' },
             { label: 'Peak Day', value: `~${(peak.peakTime * 365).toFixed(0)}`, color: '#8b5cf6' },
           ]}
         />

@@ -150,7 +150,7 @@ export const DISEASE_PRESETS: DiseaseProfile[] = [
   },
   {
     name: 'SARS',
-    R0: 2.4,
+    R0: 2.5,
     theta: 0.10,
     incubation: 4.6,
     infectiousPeriod: 7.5,

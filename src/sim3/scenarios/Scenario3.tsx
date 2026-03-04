@@ -93,7 +93,7 @@ export default function Scenario3() {
             Setting Parameters
           </h3>
           <ParameterSlider
-            label="γ (isolation effectiveness)"
+            label="Isolation effectiveness"
             value={isolationEff}
             min={0.5}
             max={1}

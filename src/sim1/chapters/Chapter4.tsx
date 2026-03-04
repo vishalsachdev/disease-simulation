@@ -99,7 +99,7 @@ export default function Chapter4(_props: ChapterProps) {
 
           {showSIRS && (
             <ParameterSlider
-              label="ω (waning rate)"
+              label="How fast immunity fades (ω)"
               value={omega}
               min={1}
               max={52}
@@ -125,9 +125,9 @@ export default function Chapter4(_props: ChapterProps) {
         <MetricsDashboard
           metrics={[
             { label: 'R₀', value: r0.toFixed(2), color: '#ef4444' },
-            { label: 'S* (theory)', value: S_star_theory.toFixed(4), color: '#3b82f6' },
-            { label: 'I* (theory)', value: I_star_theory.toFixed(5), color: '#ef4444' },
-            { label: 'I* (sim)', value: eq.I_star.toFixed(5), color: '#f97316' },
+            { label: 'S* (theory)', value: `${(S_star_theory * 100).toFixed(1)}%`, color: '#3b82f6' },
+            { label: 'I* (theory)', value: `${(I_star_theory * 100).toFixed(2)}%`, color: '#ef4444' },
+            { label: 'I* (sim)', value: `${(eq.I_star * 100).toFixed(2)}%`, color: '#f97316' },
           ]}
         />
 
@@ -137,13 +137,20 @@ export default function Chapter4(_props: ChapterProps) {
 
         {showSIRS && (
           <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4">
-            <h3 className="text-sm font-medium text-slate-300 mb-2">Endemic Equilibrium</h3>
-            <div className="text-xs text-slate-400 space-y-1 font-mono">
-              <p>S* = (γ+μ)/β = {S_star_theory.toFixed(4)}</p>
-              <p>I* = (1−S*)(ω+μ)/(ω+μ+γ) = {I_star_theory.toFixed(4)}</p>
-              <p>Simulated S* = {eq.S_star.toFixed(4)}</p>
-              <p>Simulated I* = {eq.I_star.toFixed(6)}</p>
-            </div>
+            <p className="text-sm text-slate-300">
+              At steady state, about <span className="text-blue-400 font-semibold">{(S_star_theory * 100).toFixed(0)}%</span> of the population remains susceptible and about <span className="text-red-400 font-semibold">{(I_star_theory * 100).toFixed(1)}%</span> is infected at any given time.
+            </p>
+            <details className="mt-2">
+              <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">
+                Show the math
+              </summary>
+              <div className="text-xs text-slate-400 space-y-1 font-mono mt-2 pl-2 border-l border-slate-700">
+                <p>S* = (γ+μ)/β = {S_star_theory.toFixed(4)}</p>
+                <p>I* = (1−S*)(ω+μ)/(ω+μ+γ) = {I_star_theory.toFixed(4)}</p>
+                <p>Simulated S* = {eq.S_star.toFixed(4)}</p>
+                <p>Simulated I* = {eq.I_star.toFixed(6)}</p>
+              </div>
+            </details>
           </div>
         )}
       </div>
